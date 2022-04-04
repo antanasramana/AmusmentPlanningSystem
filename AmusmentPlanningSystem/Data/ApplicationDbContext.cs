@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using AmusmentPlanningSystem.Models;
 
 namespace AmusmentPlanningSystem.Data
 {
@@ -9,5 +10,6 @@ namespace AmusmentPlanningSystem.Data
             : base(options)
         {
         }
+        public DbSet<Service>? Service { get; set; }
     }
 }

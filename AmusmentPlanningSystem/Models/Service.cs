@@ -1,0 +1,14 @@
+﻿namespace AmusmentPlanningSystem.Models
+{
+    public class Service
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Picture { get; set; } = string.Empty;
+        public double Price { get; set; }
+        public DateTime EditDate { get; set; }
+        public DateTime CreationDate { get; set; }
+    }
+}
