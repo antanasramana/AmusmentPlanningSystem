@@ -15,7 +15,7 @@ namespace AmusmentPlanningSystem.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View("./Views/Home/ServiceProciderHomePage.cshtml");
         }
 
         public IActionResult Privacy()
