@@ -11,5 +11,7 @@ namespace AmusmentPlanningSystem.Data
         {
         }
         public DbSet<Service>? Service { get; set; }
+        public DbSet<Category>? Categories { get; set; }
+        public DbSet<Event> Events { get; set; }
     }
 }

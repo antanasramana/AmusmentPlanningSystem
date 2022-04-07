@@ -4,6 +4,7 @@ using AmusmentPlanningSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AmusmentPlanningSystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220407163245_categoriesAddes")]
+    partial class categoriesAddes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,33 +39,6 @@ namespace AmusmentPlanningSystem.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Event", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime>("From")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Until")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Service", b =>
@@ -92,6 +67,10 @@ namespace AmusmentPlanningSystem.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Picture")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -307,17 +286,6 @@ namespace AmusmentPlanningSystem.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Event", b =>
-                {
-                    b.HasOne("AmusmentPlanningSystem.Models.Service", "Service")
-                        .WithMany("Events")
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Service");
-                });
-
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Service", b =>
                 {
                     b.HasOne("AmusmentPlanningSystem.Models.Category", "Category")
@@ -383,11 +351,6 @@ namespace AmusmentPlanningSystem.Data.Migrations
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Category", b =>
                 {
                     b.Navigation("Services");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Service", b =>
-                {
-                    b.Navigation("Events");
                 });
 #pragma warning restore 612, 618
         }
