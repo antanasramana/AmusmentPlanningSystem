@@ -4,6 +4,7 @@ using AmusmentPlanningSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AmusmentPlanningSystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220429080546_newModel-User-Client-Event")]
+    partial class newModelUserClientEvent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.4")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -39,26 +41,6 @@ namespace AmusmentPlanningSystem.Data.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Client", b =>
-                {
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsBlocked")
-                        .HasColumnType("bit");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("Clients");
-                });
-
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -73,13 +55,7 @@ namespace AmusmentPlanningSystem.Data.Migrations
                     b.Property<DateTime>("From")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("OrderId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ServiceId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ShoppingCartId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("To")
@@ -87,61 +63,9 @@ namespace AmusmentPlanningSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId");
-
                     b.HasIndex("ServiceId");
 
-                    b.HasIndex("ShoppingCartId");
-
                     b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PaymentId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Sum")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime>("date")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("PaymentId");
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<float>("Sum")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Service", b =>
@@ -181,24 +105,6 @@ namespace AmusmentPlanningSystem.Data.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Service");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.ShoppingCart", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.ToTable("ShoppingCarts");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -405,42 +311,13 @@ namespace AmusmentPlanningSystem.Data.Migrations
 
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Event", b =>
                 {
-                    b.HasOne("AmusmentPlanningSystem.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId");
-
                     b.HasOne("AmusmentPlanningSystem.Models.Service", "Service")
                         .WithMany("Events")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AmusmentPlanningSystem.Models.ShoppingCart", "ShoppingCart")
-                        .WithMany("Events")
-                        .HasForeignKey("ShoppingCartId");
-
-                    b.Navigation("Order");
-
                     b.Navigation("Service");
-
-                    b.Navigation("ShoppingCart");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Order", b =>
-                {
-                    b.HasOne("AmusmentPlanningSystem.Models.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AmusmentPlanningSystem.Models.Payment", "Payment")
-                        .WithMany()
-                        .HasForeignKey("PaymentId");
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Service", b =>
@@ -452,17 +329,6 @@ namespace AmusmentPlanningSystem.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.ShoppingCart", b =>
-                {
-                    b.HasOne("AmusmentPlanningSystem.Models.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -522,11 +388,6 @@ namespace AmusmentPlanningSystem.Data.Migrations
                 });
 
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Service", b =>
-                {
-                    b.Navigation("Events");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.ShoppingCart", b =>
                 {
                     b.Navigation("Events");
                 });
