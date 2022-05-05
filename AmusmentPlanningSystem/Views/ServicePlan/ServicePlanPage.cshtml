@@ -1,0 +1,118 @@
+﻿@model List<AmusmentPlanningSystem.Models.Event>
+
+@{
+    ViewData["Title"] = "ServicePlan"; 
+}
+
+@{
+    var categories = (List<SelectListItem>)ViewData["Categories"];
+    var error = (string)ViewData["Error"];
+    var success = (string)ViewData["Success"];
+    var servicePlan = (List<Event>)ViewData["ServicePlan"];
+    var categoryCount = 1;
+}
+
+
+<h1>Service Plan</h1>
+<script src="~/bundles/jqueryval"></script>
+<div class="row">
+    @if (@servicePlan == null)
+    {
+        <h2>Data</h2>
+        <hr />
+        <div class="col-md-4">
+            <script src="~/bundles/jqueryval.js"></script>
+            <form asp-action="SendServicePlanData">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group my-2">
+                    <label for="StartDateTime"  class="control-label mb-1">Start date time</label>
+                    <input name="StartDateTime" class="form-control" type="datetime-local" format="{0:dd.MM.yyyy hh:mm}" required />
+                    <span name="StartDateTime" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-2">
+                    <label for="EndDateTime" class="control-label mb-1">End date time</label>
+                    <input name="EndDateTime" class="form-control" type="datetime-local" format="{0:dd.MM.yyyy hh:mm}" required />
+                    <span name="EndDateTime" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-2" id="CategoriesInput1">
+                        <label for="CategoryId" class="control-label mb-1">Categories</label>
+                    <table id="CategoriesInput" class=" table">
+                        <tr>
+                            <td >
+                            <div name="Categories[0]">
+                                @Html.DropDownList("Categories",  categories, "--------------", new { @class = "form-control", required =  "required"})
+                            </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <input type="hidden" disabled value="@categoryCount" id="hCount" />
+                    <button type="button" id="Add" class="btn btn-secondary mb-3" onclick="addCategory($('#hCount').val());"> Add a category</button>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary mb-3" />
+                    </div>
+                </div>
+            </form>
+        </div>
+        <span style="color:green;">@success</span>
+        <span style="color:red;">@error</span>
+    }
+    @if (@servicePlan != null)
+    {
+        <span class="pull-right" style="color:green;">@success</span>
+        <form asp-action="ConfirmServicePlan">
+        <table id="CategoriesInput" class="table">
+            <tr>
+                <th>Service</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Address</th>
+            </tr>
+            @for(int i=0; i< @servicePlan.Count(); i++)
+            {
+                @Html.TextBox("events[" + @i + "]", @servicePlan[@i].Id, new { @readonly = "readonly", hidden="hidden" })
+                <tr>
+                    <td>
+                        @servicePlan[@i].Service.Name
+                    </td>
+                    <td>
+                        @servicePlan[@i].From
+                    </td>
+                    <td>
+                        @servicePlan[@i].To
+                    </td>
+                    <td>
+                        @servicePlan[@i].Service.Address
+                    </td>
+                </tr>
+            }
+        </table>
+        <div>
+            <a asp-action="OpenServicePlan" class="btn btn-secondary mb-3">Change Service Plan</a>
+        </div>
+        <div>
+            
+            <button type="submit" class="btn btn-primary mb-3">Confirm Service Plan</button>
+            
+        </div>
+        </form>
+    }
+</div>
+
+<div>
+    <a asp-controller="Home" asp-action="Index">Back to Home</a>
+</div>
+
+@section Scripts {
+<script>
+    function addCategory(sk) {
+        var table = document.getElementById("CategoriesInput");
+        var row = table.insertRow(-1);
+        row.id=sk;
+        var cell1 = row.insertCell(0);
+        cell1.innerHTML =  `         
+                    <div name="Categories[`+sk+`]">
+                        @Html.DropDownList("Categories",  categories, "--------------", new { @class = "form-control" , required =  "required"})
+                    </div>`
+    }
+</script>
+     }
