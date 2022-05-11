@@ -9,6 +9,7 @@
         public int? PaymentId { get; set; }
         public Client Client { get; set; }
         public int ClientId { get; set; }
+        public MethodOfPayment MethodOfPayment { get; set; }
 
     }
 }
