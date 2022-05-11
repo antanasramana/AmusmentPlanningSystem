@@ -11,5 +11,6 @@
         public int ClientId { get; set; }
         public MethodOfPayment MethodOfPayment { get; set; }
 
+        public ICollection<Event> Events { get; set; }
     }
 }
