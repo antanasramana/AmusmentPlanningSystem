@@ -12,7 +12,7 @@
         public DateTime EditDate { get; set; }
         public DateTime CreationDate { get; set; }
         public List<Event> Events { get; set; }
-
+        public ICollection<Rating> Ratings { get; set; }
 
 
     }
