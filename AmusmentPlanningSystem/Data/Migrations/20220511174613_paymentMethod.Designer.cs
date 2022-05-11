@@ -4,6 +4,7 @@ using AmusmentPlanningSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AmusmentPlanningSystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220511174613_paymentMethod")]
+    partial class paymentMethod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,6 +50,7 @@ namespace AmusmentPlanningSystem.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsBlocked")
@@ -144,32 +147,6 @@ namespace AmusmentPlanningSystem.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Rating", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int?>("ClientUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Evaluation")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ServiceId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientUserId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("Rating");
                 });
 
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Service", b =>
@@ -434,7 +411,7 @@ namespace AmusmentPlanningSystem.Data.Migrations
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Event", b =>
                 {
                     b.HasOne("AmusmentPlanningSystem.Models.Order", "Order")
-                        .WithMany("Events")
+                        .WithMany()
                         .HasForeignKey("OrderId");
 
                     b.HasOne("AmusmentPlanningSystem.Models.Service", "Service")
@@ -457,7 +434,7 @@ namespace AmusmentPlanningSystem.Data.Migrations
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Order", b =>
                 {
                     b.HasOne("AmusmentPlanningSystem.Models.Client", "Client")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -469,21 +446,6 @@ namespace AmusmentPlanningSystem.Data.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Payment");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Rating", b =>
-                {
-                    b.HasOne("AmusmentPlanningSystem.Models.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientUserId");
-
-                    b.HasOne("AmusmentPlanningSystem.Models.Service", "Service")
-                        .WithMany("Ratings")
-                        .HasForeignKey("ServiceId");
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Service", b =>
@@ -564,21 +526,9 @@ namespace AmusmentPlanningSystem.Data.Migrations
                     b.Navigation("Services");
                 });
 
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Client", b =>
-                {
-                    b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("AmusmentPlanningSystem.Models.Order", b =>
-                {
-                    b.Navigation("Events");
-                });
-
             modelBuilder.Entity("AmusmentPlanningSystem.Models.Service", b =>
                 {
                     b.Navigation("Events");
-
-                    b.Navigation("Ratings");
                 });
 
             modelBuilder.Entity("AmusmentPlanningSystem.Models.ShoppingCart", b =>

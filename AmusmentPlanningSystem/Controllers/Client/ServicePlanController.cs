@@ -27,7 +27,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SendServicePlanData(DateTime startDateTime, DateTime endDateTime, int [] categories)
+        public IActionResult SendServicePlanData(DateTime startDateTime, DateTime endDateTime, int[] categories)
         {
             var items = _context.Categories.ToList();
             var allCategories = items.Select(item => new SelectListItem(item.Name, item.Id.ToString())).ToList();
@@ -38,55 +38,63 @@ namespace AmusmentPlanningSystem.Controllers.Client
                 ViewData["Error"] = "All fields required. Start date can't be equal or higher than end date";
                 return View("./Views/ServicePlan/ServicePlanPage.cshtml");
             }
-
-            //here we will take client from session
-            var client = new Models.Client { UserId = 1, IsBlocked = false, Address = "K. Baršausko g. 67" }; 
-
-            string addressStart = client.Address;
-            DateTime eventFinishDateTime = startDateTime;
-            var eventList = new List<Event>();
-
-            foreach (int id in categories)
+            else
             {
 
-                var services = _context.Service.Where(item => item.CategoryId == id).ToList();
-                var events = _context.Events.Where(e=> e.OrderId == null)
-                    .ToList().Join(services, e => e.ServiceId, service => service.Id, (e, service) => e)
-                    .Where(e=> e.From>=eventFinishDateTime && e.To <= endDateTime).ToList();
-                
-                TimeSpan shortestTime = new TimeSpan(365, 0, 0);
-                Event eventToAdd = null;
-               
-                foreach (var e in events)
+
+                //here we will take client from session
+                var client = new Models.Client { UserId = 1, IsBlocked = false, Address = "K. Baršausko g. 67" };
+
+                string addressStart = client.Address;
+                DateTime eventFinishDateTime = startDateTime;
+                var eventList = new List<Event>();
+
+                foreach (int id in categories)
                 {
-                    TimeSpan travelTime = CalculateTravelTime(addressStart, e.Service.Address);
-                    TimeSpan waitingTime = CalculateWaitingTime(startDateTime, e.From);
-                    TimeSpan longerTime = EvaluateTravelAndWait(travelTime, waitingTime);
-                    if(longerTime < shortestTime)
+
+                    var services = _context.Service.Where(item => item.CategoryId == id).ToList();
+                    var events = _context.Events.Where(e => e.OrderId == null)
+                        .ToList().Join(services, e => e.ServiceId, service => service.Id, (e, service) => e)
+                        .Where(e => e.From >= eventFinishDateTime && e.To <= endDateTime).ToList();
+
+                    TimeSpan shortestTime = new TimeSpan(365, 0, 0);
+                    Event eventToAdd = null;
+
+                    foreach (var e in events)
                     {
-                        shortestTime = longerTime;
-                        eventToAdd = e;
+                        TimeSpan travelTime = CalculateTravelTime(addressStart, e.Service.Address);
+                        TimeSpan waitingTime = CalculateWaitingTime(startDateTime, e.From);
+                        TimeSpan longerTime = EvaluateTravelAndWait(travelTime, waitingTime);
+                        if (longerTime < shortestTime)
+                        {
+                            shortestTime = longerTime;
+                            eventToAdd = e;
+                        }
                     }
+
+                    eventList.Add(eventToAdd);
+
+                    if (eventToAdd == null)
+                        break;
+                    addressStart = eventToAdd.Service.Address;
+                    eventFinishDateTime = eventToAdd.To;
                 }
-                
-                eventList.Add(eventToAdd);
-                //ASK JURGELAITIS
-                if (eventToAdd == null)
-                    break;
-                addressStart = eventToAdd.Service.Address;
-                eventFinishDateTime = eventToAdd.To;
+                if (!ValidateServicePlan(endDateTime, eventFinishDateTime, eventList))
+                {
+                    ViewData["Error"] = "Sorry couldn't make a plan for this time :(.";
+                    return View("./Views/ServicePlan/ServicePlanPage.cshtml");
+                }
+                else
+                {
+                    ViewData["ServicePlan"] = eventList;
+                    ViewData["Success"] = "Correct data";
+                    return View("./Views/ServicePlan/ServicePlanPage.cshtml");
+
+                }
             }
-            if (!ValidateServicePlan(endDateTime, eventFinishDateTime, eventList))
-            {
-                ViewData["Error"] = "Sorry couldn't make a plan for this time :(.";
-                return View("./Views/ServicePlan/ServicePlanPage.cshtml");
-            }
-            ViewData["ServicePlan"] = eventList;
-            ViewData["Success"] = "Correct data";
-            return View("./Views/ServicePlan/ServicePlanPage.cshtml");
 
         }
-        public bool ValidateData(DateTime startDateTime, DateTime endDateTime, int [] categories)
+        public bool ValidateData(DateTime startDateTime, DateTime endDateTime, int[] categories)
         {
             if (startDateTime == null || endDateTime == null || categories.Count() == 0)
                 return false;
@@ -117,7 +125,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ConfirmServicePlan(int [] events)
+        public IActionResult ConfirmServicePlan(int[] events)
         {
             var items = _context.Categories.ToList();
             var allCategories = items.Select(item => new SelectListItem(item.Name, item.Id.ToString())).ToList();
