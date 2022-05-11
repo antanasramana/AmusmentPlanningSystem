@@ -10,5 +10,6 @@
         public Client Client { get; set; }
         public int ClientId { get; set; }
 
+        public ICollection<Event> Events { get; set; }
     }
 }

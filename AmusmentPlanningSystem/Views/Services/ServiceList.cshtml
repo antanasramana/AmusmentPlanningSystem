@@ -1,0 +1,38 @@
+﻿@model IEnumerable<AmusmentPlanningSystem.Models.Service>
+
+@{
+    ViewData["Title"] = "ServiceList";
+}
+
+<h1>ServiceList</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                Rating
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(_ => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(_ => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(_ => $"{item.Ratings.Average(rating => rating.Evaluation)}/10")
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
