@@ -2,9 +2,12 @@
 
 @{
     ViewData["Title"] = "ServiceList";
+
+    string[] ratings = (string[])ViewData["Ratings"];
+    int i = 0;
 }
 
-<h1>ServiceList</h1>
+<h1>Service List</h1>
 
 <table class="table">
     <thead>
@@ -22,7 +25,7 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
+        <tr onclick="window.location='/service/openserviceinformation/@item.Id'">
             <td>
                 @Html.DisplayFor(_ => item.Name)
             </td>
@@ -30,9 +33,10 @@
                 @Html.DisplayFor(_ => item.Address)
             </td>
             <td>
-                @Html.DisplayFor(_ => $"{item.Ratings.Average(rating => rating.Evaluation)}/10")
+                @ratings[i] / 10
             </td>
         </tr>
+    i++;
 }
     </tbody>
 </table>

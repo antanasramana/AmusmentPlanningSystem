@@ -18,5 +18,17 @@ namespace AmusmentPlanningSystem.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set;}
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<User>()
+                .ToTable("Users");
+            builder.Entity<Client>()
+                .ToTable("Clients");
+            builder.Entity<Models.ServiceProvider>()
+                .ToTable("ServiceProviders");
+        }
     }
 }

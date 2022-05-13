@@ -1,0 +1,58 @@
+﻿#grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr 4fr;
+    grid-template-areas:
+        "grid-title grid-empty"
+        "grid-description grid-comments";
+    column-gap: 2rem;
+}
+
+#grid-title {
+    border-bottom: 1px solid black;
+}
+
+.company-title {
+    margin-top: 1rem;
+    margin-bottom: 0.125rem;
+    font-size: 1.2rem;
+}
+
+.company-ratings {
+    font-size: 1rem;
+    margin-top: 0.125rem;
+    margin-bottom: 1rem;
+}
+
+#grid-description > textarea {
+    padding: 0.75rem;
+    width: 100%;
+}
+
+#grid-comments {
+    padding: 1rem;
+    border-left: 1px solid black;
+}
+
+.comment {
+    padding-top: 0.5rem;
+    border-top: 1px solid #000;
+    margin: 0.5rem 0rem 0.5rem 0rem;
+}
+
+.comment-title {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 1rem;
+}
+
+.comment-name {
+    padding-left: 0.5rem;
+}
+#order-button {
+    padding-right: 9rem;
+}
+
+#star-container {
+    padding: 0.5rem;
+}

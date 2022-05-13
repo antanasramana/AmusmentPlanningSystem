@@ -3,6 +3,7 @@ using AmusmentPlanningSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace AmusmentPlanningSystem.Controllers.Client
 {
@@ -17,24 +18,81 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
         // TODO: Rename To "ShowServices" in MagicDraw and update this to reflect that
         [HttpGet]
+        [Route("/service")]
         public IActionResult ShowClientHomePage()
         {
             var servicesToDisplay = RecommendServices();
 
+            ViewData["Ratings"] = servicesToDisplay.Select(service => service.Ratings.Average(rating => rating.Evaluation).ToString()).ToArray();
+
             return View("/Views/Services/ServiceList.cshtml", servicesToDisplay);
+        }
+
+        [HttpGet]
+        [Route("/service/{id}")]
+        public IActionResult OpenServiceInformation(int id)
+        {
+            // TODO: Replace with actual client getter
+            var client = _context.Clients
+                .Include(client => client.Ratings)
+                    .ThenInclude(rating => rating.Service)
+                .Single(client => client.UserId == 1);
+
+            var service = _context.Service!
+                .Include(service => service.Ratings)
+                .Include(service => service.Company)
+                .Include(service => service.Comments)
+                    .ThenInclude(comment => comment.Client)
+                .Single(service => service.Id == id);
+
+            ViewData["ClientRating"] = client.Ratings.SingleOrDefault(rating => rating.Service.Id == id)?.Evaluation;
+
+            return View("/Views/Services/ServicePage.cshtml", service);
+        }
+
+        [HttpPost]
+        [Route("/service/{id}/rating/{evaluation}")]
+        public IActionResult LeaveRating(int id, int evaluation)
+        {
+            var client = _context.Clients
+                .Include(client => client.Ratings)
+                    .ThenInclude(rating => rating.Service)
+                .Single(client => client.UserId == 1); // TODO: Replace with actual client getter
+
+            var service = _context.Service!.Single(service => service.Id == id);
+            var leftRating = client.Ratings.SingleOrDefault(rating => rating.Service.Id == id);
+
+            if (leftRating != null)
+            {
+                leftRating.Evaluation = evaluation;
+            }
+            else
+            {
+                var newRating = new Rating
+                {
+                    Client = client,
+                    Service = service,
+                    Evaluation = evaluation,
+                };
+
+                service.Ratings.Add(newRating);
+                client.Ratings.Add(newRating);
+            }
+
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(OpenServiceInformation), new { id });
         }
 
         private IEnumerable<Service> RecommendServices()
         {
             // TODO: Get logged in user
-            // should use .Include to get orders
-            // also .ThenInclude events and event categories
-            var client = new Models.Client()
-            {
-                Address = "Didvyrių k., Smilgų g. 11",
-                IsBlocked = false,
-                Orders = new List<Order>()
-            };
+            var client = _context.Clients!
+                .Include(client => client.Orders)
+                    .ThenInclude(order => order.Events)
+                .Include(client => client.Orders)
+                    .ThenInclude(order => order.Events)
+                .Single(client => client.UserId == 1);
             var clientOrders = client.Orders;
 
             List<Service> services = new();
