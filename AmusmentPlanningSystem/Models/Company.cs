@@ -10,6 +10,6 @@
         public bool IsClosed { get; set; }
 
         public int ServiceProviderId { get; set; }
-        public ServicesProvider ServicesProvider { get; set; }
+        public ServiceProvider ServicesProvider { get; set; }
     }
 }

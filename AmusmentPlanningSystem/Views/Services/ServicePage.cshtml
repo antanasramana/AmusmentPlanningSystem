@@ -1,0 +1,139 @@
+﻿@model AmusmentPlanningSystem.Models.Service
+
+@{
+    ViewData["Title"] = "ServicePage";
+
+    const int MAXSTARS = 5;
+
+    var averageRating = Model.Ratings.Average(rating => rating.Evaluation);
+    var ratingText = $"{averageRating}/5";
+
+    int? clientRating = (int?)ViewData["ClientRating"];
+    string clientRatingVal;
+
+    if (clientRating.HasValue)
+    {
+        clientRatingVal = clientRating.ToString();
+    }
+    else
+    {
+        clientRatingVal = "null";
+    }
+}
+
+<div class="container">
+    <div id="grid">
+        <div id="grid-title">
+            <h1>@Model.Name</h1>
+        </div>
+        <div id="grid-empty">
+            
+        </div>
+        <div id="grid-description">
+            <p class="company-title">@Model.Company.Name, @Model.Address</p>
+            <p class="company-ratings">Count: @Model.Ratings.Count  ●@ratingText</p>
+            <textarea readonly>@Model.Description</textarea>
+            <a href="#" class="btn btn-primary" id="order-button">Order</a>
+        </div>
+        <div id="grid-comments">
+            <div id="star-container">
+                @for (var i = 0; i < @MAXSTARS; i++)
+                {
+                    <span><img src="~/star_outline.svg" data-index=@i class="star-img" style="width: 32px; height: 32px;" /></span>
+                }
+            </div>
+            <textarea class="form-control" placeholder="Comment"></textarea>
+            <div id="comments">
+                @foreach (var comment in Model.Comments)
+                {
+                    <div class="comment">
+                        <div class="comment-title">
+                            <svg height="42" width="42">
+                                <circle r="20" fill="none" stroke="black" stroke-width="1" cx="21" cy="21" />
+                            </svg>
+                            <p class="comment-name">@comment.Client.Name @comment.Client.Surname</p>
+                        </div>
+                        <p>@comment.Description</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    const starContainer = document.getElementById("star-container");
+    const stars = document.getElementsByClassName("star-img");
+    const rating = @clientRatingVal;
+
+    const outlineSrc = "/star_outline.svg";
+    const filledSrc = "/star_filled.svg";
+
+    for (let i = 0; i < stars.length; i++) {
+        const starImg = stars.item(i);
+
+        if (rating && i < rating) {
+            starImg.src = filledSrc;
+        }
+
+        starImg.addEventListener("mouseover", starMouseOver);
+        starImg.addEventListener("click", starClick);
+        starContainer.addEventListener("mouseout", starMouseOff);
+    }
+    
+    function starMouseOver(e) {
+        const targetImg = e.target;
+        const thisIndex = parseInt(targetImg.getAttribute("data-index"));
+
+        for (let i = 0; i < @MAXSTARS; i++) {
+            const star = stars.item(i);
+
+            star.src = i <= thisIndex
+                ? filledSrc
+                : outlineSrc;
+        }
+    }
+
+    function starClick(e) {
+        const targetImg = e.target;
+        const thisIndex = parseInt(targetImg.getAttribute("data-index"));
+
+        const evaluation = thisIndex + 1;
+        const body = {};
+
+        const ratingPostUri = '/service/@Model.Id/rating/' + evaluation;
+
+        fetch(ratingPostUri, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept-Redirect': 'yes'
+            },
+            body: JSON.stringify(body)
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    }
+
+    function starMouseOff(e) {
+        for (let i = 0; i < @MAXSTARS; i++) {
+            const star = stars.item(i);
+
+            if (rating && i < rating)
+            {
+                star.src = filledSrc;
+            } else {
+                star.src = outlineSrc;
+            }
+        }
+    }
+
+</script>
