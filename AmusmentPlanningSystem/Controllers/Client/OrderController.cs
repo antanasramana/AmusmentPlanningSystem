@@ -7,16 +7,18 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AmusmentPlanningSystem.Data;
 using AmusmentPlanningSystem.Models;
-
+using AmusmentPlanningSystem.Mocks;
 
 namespace AmusmentPlanningSystem.Controllers.Client
 {
     public class OrderController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly BankInterface _bankInterface;
         public OrderController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _bankInterface = new Bank();
         }
         public IActionResult OrderEvents(int[] events)
         {
@@ -35,7 +37,56 @@ namespace AmusmentPlanningSystem.Controllers.Client
             
             _context.Orders.Find(order.Id).Sum = sum;
             _context.SaveChanges();
+
+            ViewData["orderId"] = order.Id;
+            ViewData["sum"] = (int)sum;
+            ViewData["payed"] = false;
             return View("./Views/ShoppingCart/PaymentPage.cshtml");
+        }
+
+        [HttpPost]
+        public IActionResult SendPaymentData(string password, int orderId, int sum)
+        {
+
+            var status = _bankInterface.SendPaymentData(password);
+
+            if (CheckPaymentStatus(status))
+            {
+                ViewData["generated"] = true;
+                ViewData["orderId"] = orderId;
+                ViewData["sum"] = sum;
+                ViewData["payed"] = true;
+
+                var payment = new Payment { Date = DateTime.Now };
+                _context.Add(payment);
+                _context.SaveChanges();
+
+                var order = _context.Orders.Find(orderId);
+                order.PaymentId = payment.Id;
+                order.MethodOfPayment = MethodOfPayment.Bank_transfer;
+                _context.SaveChanges();
+
+
+                return View("./Views/ShoppingCart/PaymentPage.cshtml");
+            }
+            else
+            {
+                ViewData["orderId"] = orderId;
+                ViewData["sum"] = sum;
+                ViewData["payed"] = false;
+                ViewData["error"] = "Incorrect data";
+                return View("./Views/ShoppingCart/PaymentPage.cshtml");
+            }
+        }
+        
+        [HttpPost]
+        public IActionResult ReturnToCart()
+        {
+            return View("./Views/ShoppingCart/ShoppingCartPage.cshtml", new List<Event>());
+        }
+        private bool CheckPaymentStatus(bool status)
+        {
+            return status;
         }
     }
 }
