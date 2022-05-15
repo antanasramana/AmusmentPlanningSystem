@@ -10,7 +10,8 @@
         public double Price { get; set; }
         public DateTime EditDate { get; set; }
         public DateTime CreationDate { get; set; }
+        public int CompanyId { get; set; }
+        public Company Company { get; set; }
 
-        public List<ServiceWorker> ServiceWorkers { get; set; }
     }
 }
