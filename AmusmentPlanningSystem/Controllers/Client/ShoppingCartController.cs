@@ -22,7 +22,12 @@ namespace AmusmentPlanningSystem.Controllers.Client
             //here we will take client from session
             var client = new Models.Client { UserId = 1, IsBlocked = false, Address = "K. Baršausko g. 67" };
             var shoppingCart = _context.ShoppingCarts.Where(cart => cart.ClientId == client.UserId).FirstOrDefault();
-            var events = _context.Events.Where(e => e.ShoppingCartId == shoppingCart.Id).Include(e => e.Service).Include(e=>e.Service.Category).ToList();
+            var events = _context.Events
+                .Where(e => e.ShoppingCartId == shoppingCart.Id)
+                .Include(e => e.Service)
+                .Include(e=>e.Service.Category)
+                .ToList();
+
             return View("./Views/ShoppingCart/ShoppingCartPage.cshtml", events);
         }
         public IActionResult RemoveEventFromCart(int? id)
