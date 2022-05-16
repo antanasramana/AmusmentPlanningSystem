@@ -38,7 +38,7 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                     {
                         // remove discount
                         var dbService = _context
-                            .Service
+                            .Services
                             !.SingleOrDefault(s => s.Id == service.Id);
 
                         // add 10% of discount
@@ -50,7 +50,7 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                 {
                     // remove discount
                     var dbService = _context
-                        .Service
+                        .Services
                         !.SingleOrDefault(s => s.Id == service.Id);
                     dbService!.ApplyDiscount = 0;
                     _context.SaveChanges();

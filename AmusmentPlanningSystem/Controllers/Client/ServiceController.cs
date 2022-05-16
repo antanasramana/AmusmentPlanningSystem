@@ -196,7 +196,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
         public double GetServiceRevenueOf30Days(int serviceId)
         {
-            var service = _context.Service
+            var service = _context.Services
                 !.Include(s => s.Events)
                 .ThenInclude(e => e.Order)
                 .Single(s => s.Id == serviceId);
@@ -209,7 +209,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
         public void AddDiscountByService(int serviceId, double discount)
         {
-            var service = _context.Service
+            var service = _context.Services
                 !.Include(s => s.Events)
                 .ThenInclude(e => e.Order)
                 .Single(s => s.Id == serviceId);
@@ -219,7 +219,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
         public void RemoveDiscountByService(int serviceId)
         {
-            var service = _context.Service
+            var service = _context.Services
                 !.Include(s => s.Events)
                 .ThenInclude(e => e.Order)
                 .Single(s => s.Id == serviceId);
