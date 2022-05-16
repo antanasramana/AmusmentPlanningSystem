@@ -37,5 +37,6 @@ namespace AmusmentPlanningSystem.Controllers.Client
             _context.SaveChanges();
             return View("./Views/ShoppingCart/PaymentPage.cshtml");
         }
+
     }
 }

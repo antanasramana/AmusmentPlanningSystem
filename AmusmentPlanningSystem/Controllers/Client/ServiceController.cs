@@ -192,5 +192,40 @@ namespace AmusmentPlanningSystem.Controllers.Client
         {
             return services.Zip(distances).OrderByDescending(pair => pair.Second).Select(pair => pair.First);
         }
+
+
+        public double GetServiceRevenueOf30Days(int serviceId)
+        {
+            var service = _context.Service
+                !.Include(s => s.Events)
+                .ThenInclude(e => e.Order)
+                .Single(s => s.Id == serviceId);
+
+            return service.Events
+                .Where(e => e.From.AddDays(30) >= DateTime.Now)
+                .Select(e => e!.Order.Sum)
+                .Sum();
+        }
+
+        public void AddDiscountByService(int serviceId, double discount)
+        {
+            var service = _context.Service
+                !.Include(s => s.Events)
+                .ThenInclude(e => e.Order)
+                .Single(s => s.Id == serviceId);
+            service.ApplyDiscount = discount;
+            _context.SaveChanges();
+        }
+
+        public void RemoveDiscountByService(int serviceId)
+        {
+            var service = _context.Service
+                !.Include(s => s.Events)
+                .ThenInclude(e => e.Order)
+                .Single(s => s.Id == serviceId);
+             service.ApplyDiscount = 0;
+            _context.SaveChanges();
+        }
     }
+
 }

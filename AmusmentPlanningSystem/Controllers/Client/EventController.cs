@@ -26,5 +26,15 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
             return View("./Views/OrderedEvents/OrderedEventsList.cshtml", events);
         }
+
+        public List<Event> GetAllEventsByTime(DateTime start, DateTime end)
+        {
+            return _context
+                .Events
+                .Include(e => e.Order)
+                .Include(e => e.Service)
+                .Where(e => e.From <= start && e.To >= end)
+                .ToList();
+        }
     }
 }

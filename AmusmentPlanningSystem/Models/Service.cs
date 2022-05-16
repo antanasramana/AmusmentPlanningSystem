@@ -15,5 +15,6 @@
         public List<Event> Events { get; set; }
         public ICollection<Rating> Ratings { get; set; }
         public ICollection<Comment> Comments { get; set; }
+        public double ApplyDiscount { get; set; } = 0;
     }
 }
