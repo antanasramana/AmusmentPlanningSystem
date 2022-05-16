@@ -1,0 +1,93 @@
+﻿@model AmusmentPlanningSystem.Models.ReportFilterModel
+
+@{
+    ViewData["Title"] = "Finance Report"; 
+}
+
+@{
+    var error = (string)ViewData["Error"];
+    var success = (string)ViewData["Success"];
+    var events = (List<Event>)ViewData["Events"]; 
+    var payments = (List<SelectListItem>)ViewData["Payments"];
+}
+
+
+<h1>Finance Report</h1>
+<script src="~/bundles/jqueryval"></script>
+<div class="row">
+    <h2>Input Filters</h2>
+    <hr />
+    <div class="col-md-4">
+        <script src="~/bundles/jqueryval.js"></script>
+        <form asp-action="SendFilterData">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ServiceName" class="control-label">Service name</label>
+                <input asp-for="ServiceName" class="form-control" />
+                <span name="ServiceName" class="text-danger"></span>
+            </div>
+            @if (@payments != null)
+            {
+                <div class="form-group">
+                    <label asp-for="MethodOfPayment" class="control-label">Payment method</label>
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(model => model.MethodOfPayment, payments, "--------------", new { @class = "form-control" })
+                    </div>
+                </div>
+            }
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary mb-3" />
+            </div>
+        </form>
+    </div>
+    <span style="color:green;">@success</span>
+    <span style="color:red;">@error</span>
+    
+    @if (@events != null)
+    {
+        <span class="pull-right" style="color:green;">@success</span>
+        <table id="CategoriesInput" class="table">
+            <tr>
+                <th>Service</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Price paid</th>
+                <th>Payment method</th>
+            </tr>
+            @for(int i=0; i< @events.Count(); i++)
+            {
+                @Html.TextBox("events[" + @i + "]", @events[@i].Id, new { @readonly = "readonly", hidden="hidden" })
+                <tr>
+                    <td>
+                        @events[@i].Service.Name
+                    </td>
+                    <td>
+                        @events[@i].From
+                    </td>
+                    <td>
+                        @events[@i].To
+                    </td>
+                     <td>
+                        @events[@i].Order.MethodOfPayment.ToString()
+                    </td>
+                    <td>
+                        @events[@i].Order.Payment.Sum
+                    </td>
+                </tr>
+            }
+           <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        @events.Select(e => e.Order.Payment.Sum).Sum()
+                    </td>
+           </tr>
+        </table>
+    }
+</div>
+
+<div>
+    <a asp-controller="Home" asp-action="Index">Back to Home</a>
+</div>
