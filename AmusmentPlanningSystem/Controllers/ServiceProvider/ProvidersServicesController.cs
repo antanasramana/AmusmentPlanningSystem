@@ -1,5 +1,4 @@
-﻿#nullable disable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,7 +13,7 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
     public class ProvidersServicesController : Controller
     {
         private readonly ApplicationDbContext _context;
-
+        private readonly Company company = new Company() { Id=1};
         public ProvidersServicesController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
@@ -22,47 +21,67 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
 
         public IActionResult ShowProvidersServices()
         {
-
-            var services = _context.Service.Include(c => c.Category).ToList();
+            var services = _context.Services.Include(c => c.Category).ToList();
             return View("./Views/ProvidersServices/ProvidersServiceList.cshtml", services);
         }
 
         public IActionResult ShowServiceCreation()
         {
             var items = _context.Categories.ToList();
+            var workers = _context.Workers.Where(c => c.CompanyId== company.Id).ToList();
             var categories = items.Select(item => new SelectListItem(item.Name, item.Id.ToString())).ToList();
             ViewData["Categories"] = categories;
+            ViewData["id"] = -1;
+            ViewData["Workers"] = workers;
             return View("./Views/ProvidersServices/AddServicePage.cshtml");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SendServiceData([Bind("Id,Name,Address,Description,Picture,Price,EditDate,CategoryId,CreationDate")] Service service)
+        public IActionResult SendServiceData([Bind("Id,Name,Address,Description,Picture,Price,EditDate,CategoryId,CreationDate")] Service service, int [] workers)
         {
             var items = _context.Categories.ToList();
             var categories = items.Select(item => new SelectListItem(item.Name, item.Id.ToString())).ToList();
             ViewData["Categories"] = categories;
+            ViewData["id"] = -1;
 
 
             if (!ValidateServiceData(service))
             {
                 ViewData["Error"] = "Incorrect data";
+                ViewData["id"] = -1;
                 return View("./Views/ProvidersServices/AddServicePage.cshtml");
             }
 
-
+            service.CompanyId= company.Id;
             service.CreationDate = DateTime.Now;
             service.EditDate = DateTime.Now;
-            _context.Add(service);
+            var addedService = _context.Add(service).Entity;
             _context.SaveChanges();
+
+            foreach (var id in workers)
+            {
+                _context.ServicesWorkers.Add(new ServiceWorker { ServiceId= addedService.Id, WorkerId = id});
+            }
+            _context.SaveChanges();
+
+
+
             ViewData["Success"] = "Correct data";
+            ViewData["Workers"] = _context.ServicesWorkers.Where(w=>w.ServiceId==addedService.Id)
+                                            .Join(_context.Workers,
+                                            sw=>sw.WorkerId,
+                                            w=>w.Id, 
+                                            (sw,w)=> w).ToList();
+            ViewData["id"] = addedService.Id;
+
             return View("./Views/ProvidersServices/AddServicePage.cshtml", service);
 
         }
 
         public IActionResult EditService(int? id)
         {
-            var service = _context.Service.Find(id);
+            var service = _context.Services.Find(id);
 
             var items = _context.Categories.ToList();
             var categories = items.Select(item => new SelectListItem(item.Name, item.Id.ToString())).ToList();
@@ -90,13 +109,13 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
             _context.Update(service);
             _context.SaveChanges();
 
-            var services = _context.Service.Include(c => c.Category).ToList();
+            var services = _context.Services.Include(c => c.Category).ToList();
             return View("./Views/ProvidersServices/ProvidersServiceList.cshtml", services);
         }
 
         public IActionResult DeleteService(int? id)
         {
-            var service = _context.Service.Find(id);
+            var service = _context.Services.Find(id);
             return View("./Views/ProvidersServices/DeleteServicePage.cshtml", service);
         }
 
@@ -105,7 +124,9 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
         public IActionResult ConfirmDeletion(int id)
         {
             var events = _context.Events.ToList();
-            var service = _context.Service.Find(id);
+            var service = _context.Services.Find(id);
+
+            //Service Workers needed
 
             if (!ValidateDeletion(events))
             {
@@ -113,11 +134,11 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                 return View("./Views/ProvidersServices/DeleteServicePage.cshtml", service);
             }
 
-            _context.Service.Remove(service);
+            _context.Services.Remove(service);
             _context.SaveChanges();
 
 
-            var services = _context.Service.Include(c => c.Category).ToList();
+            var services = _context.Services.Include(c => c.Category).ToList();
             return View("./Views/ProvidersServices/ProvidersServiceList.cshtml", services);
         }
 

@@ -1,4 +1,4 @@
-﻿@model AmusmentPlanningSystem.Models.MethodOfPayment
+﻿@model AmusmentPlanningSystem.Models.ReportFilterModel
 
 @{
     ViewData["Title"] = "Finance Report"; 
@@ -22,16 +22,16 @@
         <form asp-action="SendFilterData">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label for="ServiceName" class="control-label"></label>
-                <input name="ServiceName" class="form-control" />
+                <label asp-for="ServiceName" class="control-label">Service name</label>
+                <input asp-for="ServiceName" class="form-control" />
                 <span name="ServiceName" class="text-danger"></span>
             </div>
             @if (@payments != null)
             {
                 <div class="form-group">
-                    <label for="MethodOfPayment" class="control-label"></label>
+                    <label asp-for="MethodOfPayment" class="control-label">Payment method</label>
                     <div class="col-md-10">
-                        @Html.DropDownListFor(model => model, payments, "--------------", new { @class = "form-control" })
+                        @Html.DropDownListFor(model => model.MethodOfPayment, payments, "--------------", new { @class = "form-control" })
                     </div>
                 </div>
             }
@@ -52,6 +52,7 @@
                 <th>Start</th>
                 <th>End</th>
                 <th>Price paid</th>
+                <th>Payment method</th>
             </tr>
             @for(int i=0; i< @events.Count(); i++)
             {
@@ -66,12 +67,16 @@
                     <td>
                         @events[@i].To
                     </td>
+                     <td>
+                        @events[@i].Order.MethodOfPayment.ToString()
+                    </td>
                     <td>
                         @events[@i].Order.Payment.Sum
                     </td>
                 </tr>
             }
            <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>

@@ -19,20 +19,26 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
         {
             ViewData["Payments"] = new List<SelectListItem>() {
                 new SelectListItem("Both", "-1"),
-                new SelectListItem("Cash", MethodOfPayment.Cash.ToString()),
-                new SelectListItem("Bank Transfer", MethodOfPayment.Bank_transfer.ToString()),
+                new SelectListItem("Cash", ((int)MethodOfPayment.Cash).ToString()),
+                new SelectListItem("Bank Transfer", ((int)MethodOfPayment.Bank_transfer).ToString()),
             };
-            return View("./Views/Reports/MonthlyFinanceReportPage.cshtml");
+            return View("./Views/Reports/MonthlyFinanceReportPage.cshtml", new ReportFilterModel { MethodOfPayment = null });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SendFilterData()
+        public IActionResult SendFilterData([Bind("ServiceName,MethodOfPayment")] ReportFilterModel filters)
         {
-            if (!AreFiltersValid())
+            ViewData["Payments"] = new List<SelectListItem>() {
+                new SelectListItem("Both", "-1"),
+                new SelectListItem("Cash", ((int)MethodOfPayment.Cash).ToString()),
+                new SelectListItem("Bank Transfer", ((int)MethodOfPayment.Bank_transfer).ToString()),
+            };
+
+            if (!AreFiltersValid(filters))
             {
                 ViewData["Error"] = "Incorrect data";
-                return View("./Views/ProvidersServices/AddServicePage.cshtml");
+                return View("./Views/Reports/MonthlyFinanceReportPage.cshtml", new ReportFilterModel { MethodOfPayment = null });
             }
 
             var services = _context.Service!
@@ -45,20 +51,31 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
 
             var events = services
                 .SelectMany(service => service.Events)
+                .Where(e => e.From.Month == DateTime.Now.Month)
+                .Where(e => 
+                    (
+                        (
+                            filters.MethodOfPayment == "-1" 
+                            || 
+                            e.Order.MethodOfPayment == (MethodOfPayment)Enum.ToObject(typeof(MethodOfPayment), int.Parse(filters.MethodOfPayment)))
+                        ) 
+                     && 
+                        e.Service.Name.Contains(filters.ServiceName ?? "")
+                    )
                 .ToList();
 
             ViewData["Events"] = events;
-            ViewData["Payments"]= new List<SelectListItem>() {
-                new SelectListItem("Both", "-1"),
-                new SelectListItem("Cash", MethodOfPayment.Cash.ToString()),
-                new SelectListItem("Cash", MethodOfPayment.Bank_transfer.ToString()),
-            };
 
-            return View("./Views/Reports/MonthlyFinanceReportPage.cshtml");
+            return View("./Views/Reports/MonthlyFinanceReportPage.cshtml", new ReportFilterModel { MethodOfPayment = null });
         }
 
-        private bool AreFiltersValid()
+        private bool AreFiltersValid(ReportFilterModel filters)
         {
+            if (filters.MethodOfPayment == null)
+            {
+                return false;
+            }
+
             return true;
         }
     }

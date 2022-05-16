@@ -1,8 +1,53 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Payment page";
+
+    int orderId = (int)ViewData["orderId"];
+    int sum = (int)ViewData["sum"];
+    string error = (string)ViewData["error"];
+    bool payed = (bool)ViewData["payed"];
+}
+@{
+    Layout = "~/Views/Shared/_LayoutClient.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Pay for order.</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div>
+    @if (!payed)
+    {
+        <h4>You need to pay @sum.</h4>
+
+        <div class="col-md-4">
+            <form asp-controller="Order"  asp-action="ReturnToCart"> 
+                <div class="form-group">
+                    <input type="submit" value="Pay in service place" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <form asp-controller="Order"  asp-action="SendPaymentData" method="post"> 
+                <div>
+                    <input  hidden type="number" name="orderId" value="@orderId"><br>
+                </div>
+                <div>
+                    <input  hidden type="number" name="sum" value="@sum"><br>
+                </div>
+                <div>
+                    <label>Bank password</label>
+                    <input  required type="password" name="password" value=""><br>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Pay" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+        <h3 style="color:red;">@error</h3>
+    }
+    else
+    {
+        <h3 style="color:green;">Great success. You successfully payed @sum</h3>
+        <form asp-controller="Order"  asp-action="ReturnToCart"> 
+                <div class="form-group">
+                    <input type="submit" value="Return to cart" class="btn btn-primary" />
+                </div>
+        </form>
+    }
 </div>

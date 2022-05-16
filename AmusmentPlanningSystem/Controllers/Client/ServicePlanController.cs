@@ -52,7 +52,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
                 foreach (int id in categories)
                 {
 
-                    var services = _context.Service.Where(item => item.CategoryId == id).ToList();
+                    var services = _context.Services.Where(item => item.CategoryId == id).ToList();
                     var events = _context.Events.Where(e => e.OrderId == null)
                         .ToList().Join(services, e => e.ServiceId, service => service.Id, (e, service) => e)
                         .Where(e => e.From >= eventFinishDateTime && e.To <= endDateTime).ToList();
