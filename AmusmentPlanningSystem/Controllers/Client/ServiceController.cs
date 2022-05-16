@@ -38,7 +38,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
                     .ThenInclude(rating => rating.Service)
                 .Single(client => client.UserId == 1);
 
-            var service = _context.Service!
+            var service = _context.Services!
                 .Include(service => service.Ratings)
                 .Include(service => service.Company)
                 .Include(service => service.Comments)
@@ -59,7 +59,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
                     .ThenInclude(rating => rating.Service)
                 .Single(client => client.UserId == 1); // TODO: Replace with actual client getter
 
-            var service = _context.Service!.Single(service => service.Id == id);
+            var service = _context.Services!.Single(service => service.Id == id);
             var leftRating = client.Ratings.SingleOrDefault(rating => rating.Service.Id == id);
 
             if (leftRating != null)
@@ -99,7 +99,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
             if (clientOrders.Count == 0)
             {
-                services = _context.Service!
+                services = _context.Services!
                     .Include(service => service.Ratings)
                     .ToList();
 

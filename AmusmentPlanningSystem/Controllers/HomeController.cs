@@ -13,14 +13,22 @@ namespace AmusmentPlanningSystem.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        [Route("/ServiceProvider")]
+        public IActionResult ServiceProviderHomePage()
         {
-            return View("./Views/Home/ServiceProciderHomePage.cshtml");
+            return View("./Views/Home/ServiceProviderHomePage.cshtml");
+        }
+        [HttpGet]
+        [Route("/Client")]
+        public IActionResult ClientHomePage()
+        {
+            return View("./Views/Home/ClientHomePage.cshtml");
         }
 
-        public IActionResult Privacy()
+        public IActionResult Index()
         {
-            return View();
+            return RedirectToAction(nameof(ClientHomePage));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
