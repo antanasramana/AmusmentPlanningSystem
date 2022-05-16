@@ -1,4 +1,4 @@
-﻿@model List<AmusmentPlanningSystem.Models.Event>
+﻿@model AmusmentPlanningSystem.Models.MethodOfPayment
 
 @{
     ViewData["Title"] = "Finance Report"; 
@@ -7,8 +7,8 @@
 @{
     var error = (string)ViewData["Error"];
     var success = (string)ViewData["Success"];
-    var events = (List<Event>)ViewData["Events"];
-    var categoryCount = 1;
+    var events = (List<Event>)ViewData["Events"]; 
+    var payments = (List<SelectListItem>)ViewData["Payments"];
 }
 
 
@@ -21,16 +21,20 @@
         <script src="~/bundles/jqueryval.js"></script>
         <form asp-action="SendFilterData">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group my-2">
-                <label for="StartDateTime"  class="control-label mb-1">Start date time</label>
-                <input name="StartDateTime" class="form-control" type="datetime-local" format="{0:dd.MM.yyyy hh:mm}" required />
-                <span name="StartDateTime" class="text-danger"></span>
+            <div class="form-group">
+                <label for="ServiceName" class="control-label"></label>
+                <input name="ServiceName" class="form-control" />
+                <span name="ServiceName" class="text-danger"></span>
             </div>
-            <div class="form-group mb-2">
-                <label for="EndDateTime" class="control-label mb-1">End date time</label>
-                <input name="EndDateTime" class="form-control" type="datetime-local" format="{0:dd.MM.yyyy hh:mm}" required />
-                <span name="EndDateTime" class="text-danger"></span>
-            </div>
+            @if (@payments != null)
+            {
+                <div class="form-group">
+                    <label for="MethodOfPayment" class="control-label"></label>
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(model => model, payments, "--------------", new { @class = "form-control" })
+                    </div>
+                </div>
+            }
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary mb-3" />
             </div>

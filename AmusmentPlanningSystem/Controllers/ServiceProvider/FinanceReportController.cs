@@ -1,5 +1,7 @@
 ﻿using AmusmentPlanningSystem.Data;
+using AmusmentPlanningSystem.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace AmusmentPlanningSystem.Controllers.ServiceProvider
@@ -15,6 +17,11 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
 
         public IActionResult ShowMonthlyReport()
         {
+            ViewData["Payments"] = new List<SelectListItem>() {
+                new SelectListItem("Both", "-1"),
+                new SelectListItem("Cash", MethodOfPayment.Cash.ToString()),
+                new SelectListItem("Bank Transfer", MethodOfPayment.Bank_transfer.ToString()),
+            };
             return View("./Views/Reports/MonthlyFinanceReportPage.cshtml");
         }
 
@@ -41,6 +48,11 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                 .ToList();
 
             ViewData["Events"] = events;
+            ViewData["Payments"]= new List<SelectListItem>() {
+                new SelectListItem("Both", "-1"),
+                new SelectListItem("Cash", MethodOfPayment.Cash.ToString()),
+                new SelectListItem("Cash", MethodOfPayment.Bank_transfer.ToString()),
+            };
 
             return View("./Views/Reports/MonthlyFinanceReportPage.cshtml");
         }
