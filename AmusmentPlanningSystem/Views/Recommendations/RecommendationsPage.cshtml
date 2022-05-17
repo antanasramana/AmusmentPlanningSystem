@@ -1,0 +1,47 @@
+﻿@model IEnumerable<AmusmentPlanningSystem.ViewModels.Recommendation>
+
+@{
+    ViewData["Title"] = "Index";
+}
+@{
+ Layout = "~/Views/Shared/_LayoutProvider.cshtml";
+}
+
+<h1>Recommendations for the company</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Current Category that your Company serves
+            </th>
+            <th>
+                Price to use for your category of services
+            </th>
+            <th>
+                Your price deviation from mean price
+            </th>
+            <th>
+                Category to serve as well
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrentCategory.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PriceRecommendation.PriceToUse)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PriceRecommendation.DeviationFromMean)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoryToCreateServiceFor.Name)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,102 @@
+﻿using AmusmentPlanningSystem.Data;
+using AmusmentPlanningSystem.Models;
+using AmusmentPlanningSystem.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace AmusmentPlanningSystem.Controllers.ServiceProvider
+{
+    public class RecommendationsController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly Models.ServiceProvider _serviceProvider = new Models.ServiceProvider { UserId = 3 };
+
+        public RecommendationsController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Recommendations
+        public async Task<IActionResult> ShowCompanies()
+        {
+            var companies = _context.Companies.Include(c => c.ServicesProvider).Where(x => x.ServiceProviderId == _serviceProvider.UserId).ToList();
+
+            return View("./Views/Recommendations/CompanyList.cshtml", companies);
+        }
+
+        // GET: Recommendations/Details/5
+        public async Task<IActionResult> ShowCompanyRecommendations(int? id)
+        {
+            var company = _context.Companies
+                .Include(c => c.ServicesProvider)
+                .Where(m => m.Id == id).First();
+
+            var companyCategories = _context.Services.Where(x => x.CompanyId == company.Id).Include(x => x.Category).Select(x => x.Category);
+            var recommendations = new List<Recommendation>();
+
+            foreach(var category in companyCategories)
+            {
+                var priceRecommendation = await Task.Run(async () =>
+                {
+                    var services = await _context.Services.Include(x => x.Category).Where(x => x.Category.Id == category.Id).ToListAsync();
+                    var priceStandartDevation = CalculatePriceStandardDeviation(services);
+                    var priceToUse = CalculatePriceMean(services);
+                    return new Price
+                    {
+                        PriceToUse = priceToUse,
+                        DeviationFromMean = priceStandartDevation
+                    };
+                });
+
+                var mostPopularCategory = await Task.Run(async () =>
+                {
+                    var mostPopularCategoriesFromCompanies = new List<Category>();
+                    var companiesThatServeSameCategory = await _context.Services.Include(x => x.Company).Where(x => x.Category.Id == category.Id && x.CompanyId != company.Id).Select(x => x.Company).ToListAsync();
+                    foreach(var company in companiesThatServeSameCategory)
+                    {
+                        var companysServices = await _context.Services.Include(x => x.Category).Where(x => x.CompanyId == company.Id).ToListAsync();
+                        var categoriesOfServices = companysServices.Select(x => x.Category).ToList();
+                        var mostPopularCategory = FindMostPopularCategory(categoriesOfServices, category);
+
+                        mostPopularCategoriesFromCompanies.Add(mostPopularCategory);
+                    }
+
+                    return FindMostPopularCategory(mostPopularCategoriesFromCompanies, category);
+                });
+
+                recommendations.Add(new Recommendation { CurrentCategory = category, CategoryToCreateServiceFor = mostPopularCategory, PriceRecommendation = priceRecommendation});
+            }
+            
+            return View("./Views/Recommendations/RecommendationsPage.cshtml", recommendations);
+        }
+
+        private double CalculatePriceMean(List<Service> services)
+        {
+            return services.Average(x => x.Price);
+        }
+
+        private double CalculatePriceStandardDeviation(List<Service> services)
+        {
+            var priceAverage = services.Average(x => x.Price);
+            return Math.Sqrt(services.Average(s => Math.Pow(s.Price - priceAverage , 2)));
+        }
+
+        private Category FindMostPopularCategory(List<Category> categories, Category categoryToExclude)
+        {
+            var categoriesWithoutExcluded = categories.Where(x => x.Id != categoryToExclude.Id).ToList();
+
+            int maxCategoryCount = _context.Services.Where(x => x.Id != categoryToExclude.Id).Count(x => x.CategoryId == categoriesWithoutExcluded[0].Id);
+            Category popularCategory = categoriesWithoutExcluded[0];
+            foreach(var category in categoriesWithoutExcluded)
+            {
+                var countOfServicesByCategory = _context.Services.Count(x => x.CategoryId == category.Id);
+                if (countOfServicesByCategory > maxCategoryCount)
+                {
+                    maxCategoryCount = countOfServicesByCategory;
+                    popularCategory = category;
+                }
+            }
+            return popularCategory;
+        }
+    }
+}
