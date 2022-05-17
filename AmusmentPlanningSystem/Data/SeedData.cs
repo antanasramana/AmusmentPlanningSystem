@@ -63,7 +63,16 @@ namespace AmusmentPlanningSystem.Data
                 {
                     context.Companies.AddRange(
                         new Company { Name="Untanis ir Co", CreationDate=DateTime.Now, Adress="K. Petrausko g.",
-                                IsClosed=false, ServiceProviderId=2, Logo="SDF2SDF513DSF4"}
+                                IsClosed=false, ServiceProviderId=2, Logo="SDF2SDF513DSF4"},
+                        new Company
+                        {
+                            Name = "Kartingu pasaulis",
+                            CreationDate = DateTime.Now,
+                            Adress = "Kartingu gatve",
+                            IsClosed = false,
+                            ServiceProviderId = 2,
+                            Logo = "SDF2SDF513DSF4"
+                        }
                     );
                     context.SaveChanges();
                 }
@@ -86,9 +95,98 @@ namespace AmusmentPlanningSystem.Data
 
                     context.Services.Add(new Service { Address="Vydūno alėja 24", CategoryId=1, Description="Better service",
                         Price=500, Name="Futbolas pas null", CreationDate=DateTime.Now, EditDate=DateTime.Now, CompanyId=1});
+                    context.Services.Add(new Service
+                    {
+                        Address = "Kartingu gatve",
+                        CategoryId = 1,
+                        Description = "Even Better",
+                        Price = 500,
+                        Name = "Kartingai",
+                        CreationDate = DateTime.Now,
+                        EditDate = DateTime.Now,
+                        CompanyId = 2
+                    });
                     context.SaveChanges();
                 }
 
+                if (!context.Payments.Any())
+                {
+                    context.Payments.Add(new Payment
+                    {
+                        Date = DateTime.Now, 
+                        Sum = 20,
+                    });
+                    context.Payments.Add(new Payment
+                    {
+                        Date = DateTime.Now,
+                        Sum = 40,
+                    });
+                    context.Payments.Add(new Payment
+                    {
+                        Date = DateTime.Now,
+                        Sum = 50,
+                    });
+                    context.SaveChanges();
+                }
+
+                if (!context.Orders.Any())
+                {
+                    context.Orders.Add(new Order
+                    {
+                        Sum = 100,
+                        date = DateTime.Now,
+                        MethodOfPayment = MethodOfPayment.Cash,
+                        ClientId = 1,
+                        PaymentId = 1,
+                    });
+                    context.Orders.Add(new Order
+                    {
+                        Sum = 100,
+                        date = DateTime.Now,
+                        MethodOfPayment = MethodOfPayment.Cash,
+                        ClientId = 1,
+                        PaymentId = 2,
+                    });
+                    context.Orders.Add(new Order
+                    {
+                        Sum = 100,
+                        date = DateTime.Now,
+                        MethodOfPayment = MethodOfPayment.Cash,
+                        ClientId = 1,
+                    });
+                    context.SaveChanges();
+                }
+
+                if (!context.Events.Any())
+                {
+                    context.Events.Add(new Event {
+                        From = DateTime.Now.AddDays(-2),
+                        To = DateTime.Now.AddDays(2),
+                        ServiceId = 2,
+                        OrderId = 1,
+                    });
+                    context.Events.Add(new Event
+                    {
+                        From = DateTime.Now.AddDays(-2),
+                        To = DateTime.Now.AddDays(2),
+                        ServiceId = 2,
+                        OrderId = 2,
+                    });
+                    context.Events.Add(new Event
+                    {
+                        From = DateTime.Now.AddDays(-2),
+                        To = DateTime.Now.AddDays(2),
+                        ServiceId = 2,
+                        OrderId = 3,
+                    });
+                    context.Events.Add(new Event
+                    {
+                        From = DateTime.Now.AddDays(-2),
+                        To = DateTime.Now.AddDays(2),
+                        ServiceId = 2,
+                    });
+                    context.SaveChanges();
+                }
                 if (!context.Workers.Any())
                 {
                     context.Workers.Add(new Worker

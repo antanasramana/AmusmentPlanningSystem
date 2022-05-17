@@ -41,7 +41,7 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                 return View("./Views/Reports/MonthlyFinanceReportPage.cshtml", new ReportFilterModel { MethodOfPayment = null });
             }
 
-            var services = _context.Service!
+            var services = _context.Services!
                .Include(service => service.Events)
                     .ThenInclude(e => e.Order)
                     .ThenInclude(order => order!.Payment)
@@ -51,6 +51,7 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
 
             var events = services
                 .SelectMany(service => service.Events)
+                .Where(e => e.Order != null && e.Order.Payment != null)
                 .Where(e => e.From.Month == DateTime.Now.Month)
                 .Where(e => 
                     (
