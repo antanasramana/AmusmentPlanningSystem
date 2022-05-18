@@ -20,6 +20,7 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
         public IActionResult CalculateNewPrices()
         {
             var startDate = DateTime.Now.Subtract(TimeSpan.FromDays(30));
+
             var eventsByTime = _context
                 .Events
                 .Include(e => e.Order)
@@ -34,22 +35,38 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                 var service = keyVal.Value.First().Service;
                 var events = keyVal.Value;
                 
-                if (service.ApplyDiscount == 0)
+                if (CheckIfDiscountIsNotApplied(service))
                 {
                     var revenue = GetServiceRevenueOf30Days(service.Id);
 
                     if (!IsCompanyMoreProfitable(events, revenue))
                     {
-                        AddDiscountByService(service.Id, service.Price * 0.1);
+                        var serviceDb = _context.Services
+                          !.Include(s => s.Events)
+                          .ThenInclude(e => e.Order)
+                          .Single(s => s.Id == service.Id);
+                        serviceDb.ApplyDiscount = service.Price * 0.1;
+                        _context.SaveChanges();
                     }
                 } 
                 else
                 {
-                    RemoveDiscountByService(service.Id);
+                    var serviceDb = _context.Services
+                       !.Include(s => s.Events)
+                       .ThenInclude(e => e.Order)
+                       .Single(s => s.Id == service.Id);
+
+                    serviceDb.ApplyDiscount = 0;
+                    _context.SaveChanges();
                 }
             }
 
-            return View("./Views/Home/ServiceProviderHomePage.cshtml");
+            return NoContent();
+        }
+
+        private bool CheckIfDiscountIsNotApplied(Service service)
+        {
+            return service.ApplyDiscount == 0;
         }
 
         private double GetServiceRevenueOf30Days(int serviceId)
