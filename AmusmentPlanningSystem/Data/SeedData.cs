@@ -23,9 +23,10 @@ namespace AmusmentPlanningSystem.Data
                             Surname = "Bainoris",
                             PhoneNumber = "+37070060000",
                             Email = "domas@gmail.com",
-                            Password = "saasfdasdasasddasasd"
+                            Password = "saasfdasdasasddasasd",
                         }
                     );
+
                     context.SaveChanges();
                 }
 
@@ -107,7 +108,7 @@ namespace AmusmentPlanningSystem.Data
                 if (!context.Services.Any())
                 {
 
-                    context.Services.Add(new Service
+                    var serviceWithRatings = context.Services.Add(new Service
                     {
                         Address = "Vydūno alėja 24",
                         CategoryId = 2,
@@ -150,7 +151,7 @@ namespace AmusmentPlanningSystem.Data
                         CategoryId = 1,
                         Description = "Better service",
                         Price = 500,
-                        Name = "Futbolas pas null",
+                        Name = "Futbolas pas Manta",
                         CreationDate = DateTime.Now,
                         EditDate = DateTime.Now,
                         CompanyId = 1
@@ -166,6 +167,19 @@ namespace AmusmentPlanningSystem.Data
                         EditDate = DateTime.Now,
                         CompanyId = 2
                     });
+
+                    var commentAndRatingClient = context.Clients.Single(c => c.UserId == 1);
+
+                    serviceWithRatings.Entity.Comments = new List<Comment>
+                    {
+                        new Comment { Client = commentAndRatingClient, Description = "This is a comment", Service = serviceWithRatings.Entity },
+                    };
+
+                    serviceWithRatings.Entity.Ratings = new List<Rating>
+                    {
+                        new Rating { Client = commentAndRatingClient, Evaluation = 4, Service = serviceWithRatings.Entity },
+                    };
+
                     context.SaveChanges();
                 }
 

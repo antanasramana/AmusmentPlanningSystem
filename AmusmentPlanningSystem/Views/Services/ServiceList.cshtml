@@ -3,7 +3,17 @@
 @{
     ViewData["Title"] = "ServiceList";
 
-    string[] ratings = (string[])ViewData["Ratings"];
+    string[] ratings = Model.Select(service =>
+    {
+        if (service.Ratings.Any())
+        {
+            return service.Ratings.Average(rating => rating.Evaluation).ToString();
+        }
+        else
+        {
+            return "0.0";
+        }
+    }).ToArray();
     int i = 0;
 }
 
@@ -29,7 +39,7 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr onclick="window.location='/service/openserviceinformation/@item.Id'">
+        <tr onclick="window.location='/service/@item.Id'">
             <td>
                 @Html.DisplayFor(_ => item.Name)
             </td>
@@ -37,7 +47,7 @@
                 @Html.DisplayFor(_ => item.Address)
             </td>
             <td>
-                @ratings[i] / 10
+                @ratings[i] / 5
             </td>
         </tr>
     i++;
