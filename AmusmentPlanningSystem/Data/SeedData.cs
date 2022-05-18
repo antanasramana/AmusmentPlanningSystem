@@ -242,22 +242,22 @@ namespace AmusmentPlanningSystem.Data
                     });
                     context.Events.Add(new Event
                     {
-                        From = DateTime.Now.AddDays(-2),
-                        To = DateTime.Now.AddDays(2),
+                        From = DateTime.Now.AddDays(1),
+                        To = DateTime.Now.AddDays(3),
                         ServiceId = 2,
                         OrderId = 2,
                     });
                     context.Events.Add(new Event
                     {
-                        From = DateTime.Now.AddDays(-2),
-                        To = DateTime.Now.AddDays(2),
+                        From = DateTime.Now.AddDays(3),
+                        To = DateTime.Now.AddDays(5),
                         ServiceId = 2,
                         OrderId = 3,
                     });
                     context.Events.Add(new Event
                     {
-                        From = DateTime.Now.AddDays(-2),
-                        To = DateTime.Now.AddDays(2),
+                        From = DateTime.Now.AddDays(5),
+                        To = DateTime.Now.AddDays(7),
                         ServiceId = 2,
                     });
                     context.SaveChanges();
