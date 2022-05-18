@@ -5,7 +5,7 @@
 
     const int MAXSTARS = 5;
 
-    var averageRating = Model.Ratings.Average(rating => rating.Evaluation);
+    var averageRating = Model.Ratings.Any() ? Model.Ratings.Average(rating => rating.Evaluation) : 0;
     var ratingText = $"{averageRating}/5";
 
     int? clientRating = (int?)ViewData["ClientRating"];
@@ -37,7 +37,7 @@
             <p class="company-title">@Model.Company.Name, @Model.Address</p>
             <p class="company-ratings">Count: @Model.Ratings.Count  ●@ratingText</p>
             <textarea readonly>@Model.Description</textarea>
-            <a href="#" class="btn btn-primary" id="order-button">Order</a>
+            <a class="btn btn-primary" id="order-button" asp-controller="ShoppingCart" asp-action="OpenServiceOrderPage" asp-route-id="@Model.Id">Order</a>
         </div>
         <div id="grid-comments">
             <div id="star-container">
@@ -82,7 +82,7 @@
         }
 
         starImg.addEventListener("mouseover", starMouseOver);
-        starImg.addEventListener("click", starClick);
+        starImg.addEventListener("click", leaveRating);
         starContainer.addEventListener("mouseout", starMouseOff);
     }
     
@@ -99,7 +99,7 @@
         }
     }
 
-    function starClick(e) {
+    function leaveRating(e) {
         const targetImg = e.target;
         const thisIndex = parseInt(targetImg.getAttribute("data-index"));
 

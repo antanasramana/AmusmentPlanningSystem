@@ -16,14 +16,11 @@ namespace AmusmentPlanningSystem.Controllers.Client
             _context = context;
         }
 
-        // TODO: Rename To "ShowServices" in MagicDraw and update this to reflect that
         [HttpGet]
         [Route("/service")]
-        public IActionResult ShowClientHomePage()
+        public IActionResult ShowRecommendedServices()
         {
             var servicesToDisplay = RecommendServices();
-
-            ViewData["Ratings"] = servicesToDisplay.Select(service => service.Ratings.Average(rating => rating.Evaluation).ToString()).ToArray();
 
             return View("/Views/Services/ServiceList.cshtml", servicesToDisplay);
         }
@@ -45,7 +42,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
                     .ThenInclude(comment => comment.Client)
                 .Single(service => service.Id == id);
 
-            ViewData["ClientRating"] = client.Ratings.SingleOrDefault(rating => rating.Service.Id == id)?.Evaluation;
+            ViewData["ClientRating"] = GetClientOpenedServiceRating(client, id);
 
             return View("/Views/Services/ServicePage.cshtml", service);
         }
@@ -59,7 +56,8 @@ namespace AmusmentPlanningSystem.Controllers.Client
                     .ThenInclude(rating => rating.Service)
                 .Single(client => client.UserId == 1); // TODO: Replace with actual client getter
 
-            var service = _context.Services!.Single(service => service.Id == id);
+            var service = _context.Services!
+                .Single(service => service.Id == id);
             var leftRating = client.Ratings.SingleOrDefault(rating => rating.Service.Id == id);
 
             if (leftRating != null)
@@ -75,7 +73,6 @@ namespace AmusmentPlanningSystem.Controllers.Client
                     Evaluation = evaluation,
                 };
 
-                service.Ratings.Add(newRating);
                 client.Ratings.Add(newRating);
             }
 
@@ -84,14 +81,19 @@ namespace AmusmentPlanningSystem.Controllers.Client
             return RedirectToAction(nameof(OpenServiceInformation), new { id });
         }
 
+        private int? GetClientOpenedServiceRating(Models.Client client, int serviceId)
+        {
+            return client.Ratings.SingleOrDefault(rating => rating.Service.Id == serviceId)?.Evaluation;
+        }
+
         private IEnumerable<Service> RecommendServices()
         {
             // TODO: Get logged in user
             var client = _context.Clients!
                 .Include(client => client.Orders)
                     .ThenInclude(order => order.Events)
-                .Include(client => client.Orders)
-                    .ThenInclude(order => order.Events)
+                    .ThenInclude(events => events.Service)
+                    .ThenInclude(service => service.Category)
                 .Single(client => client.UserId == 1);
             var clientOrders = client.Orders;
 
@@ -110,6 +112,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
                 var categories = clientOrders
                     .SelectMany(order => order.Events)
                     .Select(e => e.Service.Category)
+                    .DistinctBy(c => c.Id)
                     .ToList();
 
                 for (int i = 0; i < categories.Count; i++)
@@ -133,7 +136,17 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
         private List<Service> SortServicesByRating(IEnumerable<Service> services)
         {
-            return services.OrderByDescending(service => service.Ratings.Average(rating => rating.Evaluation)).ToList();
+            return services.OrderByDescending(service =>
+            {
+                if (service.Ratings.Any())
+                {
+                    return service.Ratings.Average(rating => rating.Evaluation);
+                }
+                else
+                {
+                    return 0;
+                }
+            }).ToList();
         }
 
         private IEnumerable<int> GetDistanceMatrix(IEnumerable<Service> services, Models.Client client)
