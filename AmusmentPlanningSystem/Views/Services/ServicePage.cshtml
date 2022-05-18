@@ -82,7 +82,7 @@
         }
 
         starImg.addEventListener("mouseover", starMouseOver);
-        starImg.addEventListener("click", starClick);
+        starImg.addEventListener("click", leaveRating);
         starContainer.addEventListener("mouseout", starMouseOff);
     }
     
@@ -99,7 +99,7 @@
         }
     }
 
-    function starClick(e) {
+    function leaveRating(e) {
         const targetImg = e.target;
         const thisIndex = parseInt(targetImg.getAttribute("data-index"));
 

@@ -57,7 +57,6 @@ namespace AmusmentPlanningSystem.Controllers.Client
                 .Single(client => client.UserId == 1); // TODO: Replace with actual client getter
 
             var service = _context.Services!
-                .Include(service => service.Ratings)
                 .Single(service => service.Id == id);
             var leftRating = client.Ratings.SingleOrDefault(rating => rating.Service.Id == id);
 
@@ -74,7 +73,6 @@ namespace AmusmentPlanningSystem.Controllers.Client
                     Evaluation = evaluation,
                 };
 
-                service.Ratings.Add(newRating);
                 client.Ratings.Add(newRating);
             }
 
