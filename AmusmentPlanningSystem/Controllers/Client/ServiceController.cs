@@ -1,4 +1,5 @@
 ﻿using AmusmentPlanningSystem.Data;
+using AmusmentPlanningSystem.Mocks;
 using AmusmentPlanningSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace AmusmentPlanningSystem.Controllers.Client
     public class ServiceController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IGoogleService _googleService;
 
         public ServiceController(ApplicationDbContext context)
         {
             _context = context;
+            _googleService=new GoogleService();
         }
 
         [HttpGet]
@@ -129,7 +132,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
                 }
             }
 
-            var addressDistances = GetDistanceMatrix(services, client);
+            var addressDistances = _googleService.GetDistanceMatrix(services, client);
 
             return SortServicesByDistance(services, addressDistances);
         }
@@ -147,58 +150,6 @@ namespace AmusmentPlanningSystem.Controllers.Client
                     return 0;
                 }
             }).ToList();
-        }
-
-        private IEnumerable<int> GetDistanceMatrix(IEnumerable<Service> services, Models.Client client)
-        {
-            // request would be https://maps.googleapis.com/maps/api/distancematrix/json?
-            //                      destinations={services.Select(service => service.Address).Join('|')}&
-            //                      origins={client.Address}&
-            //                      key={apiKey}
-            // response looks like this: 
-            /*    {
-                  "destination_addresses": ["San Francisco, CA, USA", "Victoria, BC, Canada"],
-                  "origin_addresses": ["Vancouver, BC, Canada", "Seattle, WA, USA"],
-                  "rows":
-                    [
-                      {
-                        "elements":
-                          [
-                            {
-                              "distance": { "text": "1,723 km", "value": 1723247 },
-                              "duration": { "text": "3 days 21 hours", "value": 335356 },
-                              "status": "OK",
-                            },
-                            {
-                              "distance": { "text": "139 km", "value": 138696 },
-                              "duration": { "text": "6 hours 47 mins", "value": 24405 },
-                              "status": "OK",
-                            },
-                          ],
-                      },
-                      {
-                        "elements":
-                          [
-                            {
-                              "distance": { "text": "1,468 km", "value": 1468210 },
-                              "duration": { "text": "3 days 7 hours", "value": 284548 },
-                              "status": "OK",
-                            },
-                            {
-                              "distance": { "text": "146 km", "value": 146500 },
-                              "duration": { "text": "2 hours 53 mins", "value": 10376 },
-                              "status": "OK",
-                            },
-                          ],
-                      },
-                    ],
-                  "status": "OK",
-                }
-            */
-
-            // These are mocks
-            var rng = new Random();
-            return Enumerable.Range(1, services.Count()).OrderBy(_ => rng.Next());
         }
 
         private IEnumerable<Service> SortServicesByDistance(IEnumerable<Service> services, IEnumerable<int> distances)

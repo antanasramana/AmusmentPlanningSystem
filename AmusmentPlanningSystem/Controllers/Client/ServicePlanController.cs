@@ -6,16 +6,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AmusmentPlanningSystem.Data;
 using AmusmentPlanningSystem.Models;
+using AmusmentPlanningSystem.Mocks;
 
 namespace AmusmentPlanningSystem.Controllers.Client
 {
     public class ServicePlanController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IGoogleService _googleService;
 
         public ServicePlanController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _googleService = new GoogleService();
         }
         public IActionResult OpenServicePlan()
         {
@@ -62,7 +65,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
                     foreach (var e in events)
                     {
-                        TimeSpan travelTime = CalculateTravelTime(addressStart, e.Service.Address);
+                        TimeSpan travelTime = _googleService.CalculateTravelTime(addressStart, e.Service.Address);
                         TimeSpan waitingTime = CalculateWaitingTime(startDateTime, e.From);
                         TimeSpan longerTime = EvaluateTravelAndWait(travelTime, waitingTime);
                         if (longerTime < shortestTime)
@@ -99,10 +102,6 @@ namespace AmusmentPlanningSystem.Controllers.Client
             if (startDateTime == null || endDateTime == null || categories.Count() == 0)
                 return false;
             return endDateTime >= startDateTime;
-        }
-        public TimeSpan CalculateTravelTime(string addressStart, string addressFinish)
-        {
-            return new TimeSpan(0, 15, 0);
         }
         public TimeSpan CalculateWaitingTime(DateTime eventFinishDateTime, DateTime nextEventDateTime)
         {
