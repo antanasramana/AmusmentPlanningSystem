@@ -96,8 +96,6 @@ namespace AmusmentPlanningSystem.Controllers.Client
                     .ThenInclude(order => order.Events)
                     .ThenInclude(events => events.Service)
                     .ThenInclude(service => service.Category)
-                /*.Include(client => client.Orders)
-                    .ThenInclude(order => order.Events)*/
                 .Single(client => client.UserId == 1);
             var clientOrders = client.Orders;
 
