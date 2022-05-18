@@ -25,5 +25,6 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
             return View("./Views/OrderedEvents/OrderedEventsList.cshtml", events);
         }
+
     }
 }

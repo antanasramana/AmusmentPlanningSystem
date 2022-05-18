@@ -205,5 +205,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
         {
             return services.Zip(distances).OrderByDescending(pair => pair.Second).Select(pair => pair.First);
         }
+
     }
+
 }
