@@ -1,0 +1,72 @@
+﻿@model IEnumerable<AmusmentPlanningSystem.Models.Event>
+
+@{
+    ViewData["Title"] = "Ordered Services";
+}
+@{
+    string failureMessage = (string)ViewData["Failure"];
+    string successMessage = (string)ViewData["Success"];
+    Layout = "~/Views/Shared/_LayoutClient.cshtml";
+}
+
+<h1>Ordered Services</h1>
+
+@if (failureMessage != null)
+{
+    <h1 style="color: red;">@failureMessage</h1>
+}
+else if(successMessage != null)
+{
+    <h1 style="color: green;">@successMessage</h1>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Service.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Service.Address)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.From)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.To)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Service.Price)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Service.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Service.Address)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.From)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.To)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Service.Price)
+                    </td>
+
+                    <td>
+                        <a class="btn btn-primary" asp-controller="ShoppingCart" asp-action="SendSelectedEvent" asp-route-id="@item.Id">Book time</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

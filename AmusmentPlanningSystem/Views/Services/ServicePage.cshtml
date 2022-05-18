@@ -37,7 +37,7 @@
             <p class="company-title">@Model.Company.Name, @Model.Address</p>
             <p class="company-ratings">Count: @Model.Ratings.Count  ●@ratingText</p>
             <textarea readonly>@Model.Description</textarea>
-            <a href="#" class="btn btn-primary" id="order-button">Order</a>
+            <a class="btn btn-primary" id="order-button" asp-controller="ShoppingCart" asp-action="OpenServiceOrderPage" asp-route-id="@Model.Id">Order</a>
         </div>
         <div id="grid-comments">
             <div id="star-container">
