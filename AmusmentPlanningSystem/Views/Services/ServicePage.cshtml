@@ -5,7 +5,7 @@
 
     const int MAXSTARS = 5;
 
-    var averageRating = Model.Ratings.Average(rating => rating.Evaluation);
+    var averageRating = Model.Ratings.Any() ? Model.Ratings.Average(rating => rating.Evaluation) : 0;
     var ratingText = $"{averageRating}/5";
 
     int? clientRating = (int?)ViewData["ClientRating"];
