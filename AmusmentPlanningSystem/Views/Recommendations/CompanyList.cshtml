@@ -1,0 +1,66 @@
+﻿@model IEnumerable<AmusmentPlanningSystem.Models.Company>
+
+@{
+    ViewData["Title"] = "Index";
+}
+@{
+ Layout = "~/Views/Shared/_LayoutProvider.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Adress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Logo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsClosed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ServicesProvider)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Adress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Logo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreationDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsClosed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ServicesProvider.UserId)
+            </td>
+            <td>
+                <a asp-action="ShowCompanyRecommendations" asp-route-id="@item.Id">Recommendations</a> |
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
