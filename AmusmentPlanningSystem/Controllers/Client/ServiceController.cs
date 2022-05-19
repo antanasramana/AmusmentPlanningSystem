@@ -50,6 +50,11 @@ namespace AmusmentPlanningSystem.Controllers.Client
             return View("/Views/Services/ServicePage.cshtml", service);
         }
 
+        private int? GetClientOpenedServiceRating(Models.Client client, int serviceId)
+        {
+            return client.Ratings.SingleOrDefault(rating => rating.Service.Id == serviceId)?.Evaluation;
+        }
+
         [HttpPost]
         [Route("/service/{id}/rating/{evaluation}")]
         public IActionResult LeaveRating(int id, int evaluation)
@@ -61,11 +66,13 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
             var service = _context.Services!
                 .Single(service => service.Id == id);
-            var leftRating = client.Ratings.SingleOrDefault(rating => rating.Service.Id == id);
+            var leftRating = GetClientRating(client, id);
 
             if (leftRating != null)
             {
                 leftRating.Evaluation = evaluation;
+
+                _context.SaveChanges();
             }
             else
             {
@@ -77,16 +84,16 @@ namespace AmusmentPlanningSystem.Controllers.Client
                 };
 
                 client.Ratings.Add(newRating);
-            }
 
-            _context.SaveChanges();
+                _context.SaveChanges();
+            }
 
             return RedirectToAction(nameof(OpenServiceInformation), new { id });
         }
 
-        private int? GetClientOpenedServiceRating(Models.Client client, int serviceId)
+        private Rating? GetClientRating(Models.Client client, int id)
         {
-            return client.Ratings.SingleOrDefault(rating => rating.Service.Id == serviceId)?.Evaluation;
+            return client.Ratings.SingleOrDefault(rating => rating.Service.Id == id);
         }
 
         private IEnumerable<Service> RecommendServices()
@@ -98,11 +105,10 @@ namespace AmusmentPlanningSystem.Controllers.Client
                     .ThenInclude(events => events.Service)
                     .ThenInclude(service => service.Category)
                 .Single(client => client.UserId == 1);
-            var clientOrders = client.Orders;
 
             List<Service> services = new();
 
-            if (clientOrders.Count == 0)
+            if (client.Orders.Count == 0)
             {
                 services = _context.Services!
                     .Include(service => service.Ratings)
@@ -112,7 +118,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
             }
             else
             {
-                var categories = clientOrders
+                var categories = client.Orders
                     .SelectMany(order => order.Events)
                     .Select(e => e.Service.Category)
                     .DistinctBy(c => c.Id)
@@ -128,13 +134,18 @@ namespace AmusmentPlanningSystem.Controllers.Client
 
                     var servicesSortedByRating = SortServicesByRating(categoryServices);
 
-                    services.AddRange(servicesSortedByRating);
+                    AddServicesToList(services, servicesSortedByRating);
                 }
             }
 
             var addressDistances = _googleService.GetDistanceMatrix(services, client);
 
             return SortServicesByDistance(services, addressDistances);
+        }
+
+        private void AddServicesToList(List<Service> list, List<Service> servicesToAdd)
+        {
+            list.AddRange(servicesToAdd);
         }
 
         private List<Service> SortServicesByRating(IEnumerable<Service> services)
