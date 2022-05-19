@@ -123,7 +123,7 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
         [ValidateAntiForgeryToken]
         public IActionResult ConfirmDeletion(int id)
         {
-            var events = _context.Events.ToList();
+            var events = _context.Events.Where(e => e.ServiceId == id).ToList();
             var service = _context.Services.Find(id);
 
             //Service Workers needed

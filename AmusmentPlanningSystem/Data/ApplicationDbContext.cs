@@ -37,6 +37,14 @@ namespace AmusmentPlanningSystem.Data
                 .WithMany()
                 .OnDelete(DeleteBehavior.NoAction);
 
+            builder.Entity<Service>().HasMany(s => s.Ratings)
+               .WithOne(r => r.Service)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Service>().HasMany(s => s.Comments)
+               .WithOne(c => c.Service)
+               .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<User>()
                 .ToTable("Users");
             builder.Entity<Worker>()
