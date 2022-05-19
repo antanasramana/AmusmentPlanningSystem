@@ -104,7 +104,7 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                 ViewData["Categories"] = categories;
                 return View("./Views/ProvidersServices/EditServicePage.cshtml", service);
             }
-
+            service.CompanyId = company.Id;
             service.EditDate = DateTime.Now;
             _context.Update(service);
             _context.SaveChanges();
