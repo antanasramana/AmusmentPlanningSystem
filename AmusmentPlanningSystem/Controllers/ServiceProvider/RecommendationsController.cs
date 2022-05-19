@@ -1,6 +1,5 @@
 ﻿using AmusmentPlanningSystem.Data;
 using AmusmentPlanningSystem.Models;
-using AmusmentPlanningSystem.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,20 +31,22 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                 .Where(m => m.Id == id).First();
 
             var companyCategories = _context.Services.Where(x => x.CompanyId == company.Id).Include(x => x.Category).Select(x => x.Category);
-            var recommendations = new List<Recommendation>();
+            
+            var priceToUseList = new List<double>();
+            var priceDeviationFromMeanList = new List<double>();
+            var currentCategories = new List<Category>();
+            var categoryToUseList = new List<Category>();
 
             foreach(var category in companyCategories)
             {
-                var priceRecommendation = await Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     var services = await _context.Services.Include(x => x.Category).Where(x => x.Category.Id == category.Id).ToListAsync();
                     var priceStandartDevation = CalculatePriceStandardDeviation(services);
                     var priceToUse = CalculatePriceMean(services);
-                    return new Price
-                    {
-                        PriceToUse = priceToUse,
-                        DeviationFromMean = priceStandartDevation
-                    };
+
+                    priceToUseList.Add(priceToUse);
+                    priceDeviationFromMeanList.Add(priceStandartDevation);
                 });
 
                 var mostPopularCategory = await Task.Run(async () =>
@@ -64,10 +65,16 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                     return FindMostPopularCategory(mostPopularCategoriesFromCompanies, category);
                 });
 
-                recommendations.Add(new Recommendation { CurrentCategory = category, CategoryToCreateServiceFor = mostPopularCategory, PriceRecommendation = priceRecommendation});
+                categoryToUseList.Add(mostPopularCategory);
+                currentCategories.Add(category);
             }
-            
-            return View("./Views/Recommendations/RecommendationsPage.cshtml", recommendations);
+
+            ViewData["categoriesToUse"] = categoryToUseList;
+            ViewData["currentCategories"] = currentCategories;
+            ViewData["priceToUse"] = priceToUseList;
+            ViewData["priceDeviation"] = priceDeviationFromMeanList;
+
+            return View("./Views/Recommendations/RecommendationsPage.cshtml");
         }
 
         private double CalculatePriceMean(List<Service> services)

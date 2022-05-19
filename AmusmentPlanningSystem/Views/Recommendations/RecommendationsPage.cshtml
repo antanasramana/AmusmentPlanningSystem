@@ -1,7 +1,9 @@
-﻿@model IEnumerable<AmusmentPlanningSystem.ViewModels.Recommendation>
-
-@{
+﻿@{
     ViewData["Title"] = "Index";
+    var categoriesToUse = (List<Category>)ViewData["categoriesToUse"];
+    var currentCategories = (List<Category>)ViewData["currentCategories"];
+    var priceToUseList = (List<double>)ViewData["priceToUse"];
+    var priceDeviationList = (List<double>)ViewData["priceDeviation"];
 }
 @{
  Layout = "~/Views/Shared/_LayoutProvider.cshtml";
@@ -27,19 +29,19 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@for (int i = 0; i < currentCategories.Count; i++) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.CurrentCategory.Name)
+                @Html.DisplayFor(modelItem => currentCategories[i].Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PriceRecommendation.PriceToUse)
+                @Html.DisplayFor(modelItem => priceToUseList[i])
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PriceRecommendation.DeviationFromMean)
+                @Html.DisplayFor(modelItem => priceDeviationList[i])
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CategoryToCreateServiceFor.Name)
+                @Html.DisplayFor(modelItem => categoriesToUse[i].Name)
             </td>
         </tr>
 }
