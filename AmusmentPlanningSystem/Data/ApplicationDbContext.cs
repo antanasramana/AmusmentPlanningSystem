@@ -18,6 +18,8 @@ namespace AmusmentPlanningSystem.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Service>? Services { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Comment> Comments { get; set; }
         public DbSet<Models.ServiceProvider> ServiceProviders { get; set; }
         public DbSet<ServiceWorker> ServicesWorkers { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set;}
