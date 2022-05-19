@@ -41,7 +41,7 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
             {
                 await Task.Run(async () =>
                 {
-                    var services = await _context.Services.Include(x => x.Category).Where(x => x.Category.Id == category.Id).ToListAsync();
+                    var services = _context.Services.Include(x => x.Category).Where(x => x.Category.Id == category.Id).ToList();
                     var priceStandartDevation = CalculatePriceStandardDeviation(services);
                     var priceToUse = CalculatePriceMean(services);
 
@@ -52,10 +52,10 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                 var mostPopularCategory = await Task.Run(async () =>
                 {
                     var mostPopularCategoriesFromCompanies = new List<Category>();
-                    var companiesThatServeSameCategory = await _context.Services.Include(x => x.Company).Where(x => x.Category.Id == category.Id && x.CompanyId != company.Id).Select(x => x.Company).ToListAsync();
+                    var companiesThatServeSameCategory = _context.Services.Include(x => x.Company).Where(x => x.Category.Id == category.Id && x.CompanyId != company.Id).Select(x => x.Company).ToList();
                     foreach(var company in companiesThatServeSameCategory)
                     {
-                        var companysServices = await _context.Services.Include(x => x.Category).Where(x => x.CompanyId == company.Id).ToListAsync();
+                        var companysServices = _context.Services.Include(x => x.Category).Where(x => x.CompanyId == company.Id).ToList();
                         var categoriesOfServices = companysServices.Select(x => x.Category).ToList();
                         var mostPopularCategory = FindMostPopularCategory(categoriesOfServices, category);
 
