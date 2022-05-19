@@ -70,7 +70,7 @@ namespace AmusmentPlanningSystem.Controllers.Client
                         TimeSpan longerTime = EvaluateTravelAndWait(travelTime, waitingTime);
                         if (longerTime < shortestTime)
                         {
-                            shortestTime = longerTime;
+                            shortestTime = UpdateShortestTime(longerTime);
                             eventToAdd = e;
                         }
                     }
@@ -106,6 +106,10 @@ namespace AmusmentPlanningSystem.Controllers.Client
         public TimeSpan CalculateWaitingTime(DateTime eventFinishDateTime, DateTime nextEventDateTime)
         {
             return nextEventDateTime - eventFinishDateTime;
+        }
+        public TimeSpan UpdateShortestTime(TimeSpan newShortestTime)
+        {
+            return newShortestTime;
         }
         public TimeSpan EvaluateTravelAndWait(TimeSpan travelTime, TimeSpan waitingTime)
         {
