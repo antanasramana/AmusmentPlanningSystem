@@ -2,6 +2,7 @@
 using AmusmentPlanningSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace AmusmentPlanningSystem.Controllers.ServiceProvider
 {
@@ -39,7 +40,8 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
 
             foreach(var category in companyCategories)
             {
-                await Task.Run(async () =>
+                List<Task> tasks = new List<Task>();
+                tasks.Add(Task.Factory.StartNew(() =>
                 {
                     var services = _context.Services.Include(x => x.Category).Where(x => x.Category.Id == category.Id).ToList();
                     var priceStandartDevation = CalculatePriceStandardDeviation(services);
@@ -47,13 +49,16 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
 
                     priceToUseList.Add(priceToUse);
                     priceDeviationFromMeanList.Add(priceStandartDevation);
-                });
+                }));
 
-                var mostPopularCategory = await Task.Run(async () =>
+                tasks.Add(Task.Factory.StartNew(() =>
                 {
                     var mostPopularCategoriesFromCompanies = new List<Category>();
-                    var companiesThatServeSameCategory = _context.Services.Include(x => x.Company).Where(x => x.Category.Id == category.Id && x.CompanyId != company.Id).Select(x => x.Company).ToList();
-                    foreach(var company in companiesThatServeSameCategory)
+                    var companiesThatServeSameCategory = _context.Services.Include(x => x.Company)
+                    .Where(x => x.Category.Id == category.Id && x.CompanyId != company.Id)
+                    .Select(x => x.Company).ToList();
+
+                    foreach (var company in companiesThatServeSameCategory)
                     {
                         var companysServices = _context.Services.Include(x => x.Category).Where(x => x.CompanyId == company.Id).ToList();
                         var categoriesOfServices = companysServices.Select(x => x.Category).ToList();
@@ -62,10 +67,12 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                         mostPopularCategoriesFromCompanies.Add(mostPopularCategory);
                     }
 
-                    return FindMostPopularCategory(mostPopularCategoriesFromCompanies, category);
-                });
+                    var mostPopularCategoryFromAll = FindMostPopularCategory(mostPopularCategoriesFromCompanies, category);
+                    categoryToUseList.Add(mostPopularCategoryFromAll);
+                }));
 
-                categoryToUseList.Add(mostPopularCategory);
+                Task.WaitAll(tasks.ToArray());
+
                 currentCategories.Add(category);
             }
 
