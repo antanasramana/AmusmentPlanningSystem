@@ -45,9 +45,8 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                .Include(service => service.Events)
                     .ThenInclude(e => e.Order)
                     .ThenInclude(order => order!.Payment)
+               .Where(s => s.Name.Contains(filters.ServiceName ?? ""))
                .ToList();
-
-            services.ForEach(service => service.Events.ForEach(e => e.Service = service));
 
             var events = services
                 .SelectMany(service => service.Events)
@@ -60,8 +59,6 @@ namespace AmusmentPlanningSystem.Controllers.ServiceProvider
                             || 
                             e.Order.MethodOfPayment == (MethodOfPayment)Enum.ToObject(typeof(MethodOfPayment), int.Parse(filters.MethodOfPayment)))
                         ) 
-                     && 
-                        e.Service.Name.Contains(filters.ServiceName ?? "")
                     )
                 .ToList();
 
