@@ -55,12 +55,13 @@ namespace AmusmentPlanningSystem.Controllers
 
                 List<Task<bool>> tasks = new List<Task<bool>>();
 
-                if (e.WorkerId==null)
+                if (e.WorkerId!=null)
                 {
-                    tasks.Add(Task.Factory.StartNew(() => CheckTimeClash()));
+                    List<Event> workerEvents = _context.Events.Where(w=>w.WorkerId==w.WorkerId).ToList();
+                    tasks.Add(Task.Factory.StartNew(() => CheckTimeClash(workerEvents,e)));
                 }
-                tasks.Add(Task.Factory.StartNew(() => CheckHoliday()));
-                tasks.Add(Task.Factory.StartNew(() => CheckHours()));
+                tasks.Add(Task.Factory.StartNew(() => CheckHoliday(e)));
+                tasks.Add(Task.Factory.StartNew(() => CheckHours(e,workHourStart,workHourEnd)));
 
                 Task.WaitAll(tasks.ToArray());
 
@@ -124,17 +125,53 @@ namespace AmusmentPlanningSystem.Controllers
             return results.Contains(true);
         }
 
-        private bool CheckTimeClash()
+        private bool CheckTimeClash(List<Event> events, Event @event)
         {
+            foreach (Event e in events)
+            {
+                if (@event.To < e.From || @event.From > e.To)
+                {
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
             return false;
         }
-        private bool CheckHoliday()
+        private bool CheckHoliday(Event @event)
         {
+            List<DateTime> dates = new List<DateTime>() { new DateTime(2022, 12, 25), new DateTime(2022, 12, 26), new DateTime(2022, 1, 1), new DateTime(2022, 6, 24) };
+
+            foreach (var d in dates)
+            {
+                if (@event.From.Day == d.Day && @event.From.Month == d.Month)
+                {
+                    return true;
+                }
+                if (@event.To.Day == d.Day && @event.To.Month == d.Month)
+                {
+                    return true;
+                }
+            }
             return false;
         }
-        private bool CheckHours()
+        private bool CheckHours(Event @event, string start, string end)
         {
-            return false;
+
+            int[] startTimes = start.Split(':').Select((t) => int.Parse(t)).ToArray();
+            int[] endTimes = end.Split(':').Select((t) => int.Parse(t)).ToArray();
+
+            if (@event.From.Hour*60+ @event.From.Minute > startTimes[0]*60+startTimes[1])
+            {
+                if (@event.To.Hour * 60 + @event.To.Minute < endTimes[0] * 60 + endTimes[1])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
 
@@ -167,6 +204,7 @@ namespace AmusmentPlanningSystem.Controllers
         {
             foreach (var e in events)
             {
+                e.Worker = _context.Workers.Find(workerId);
                 e.WorkerId = workerId;
             }
         }

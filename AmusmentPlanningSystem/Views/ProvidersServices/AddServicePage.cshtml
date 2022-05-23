@@ -56,18 +56,20 @@
                 int i = 0;
                 <hr/>
                 <h4>Galimi darbuotojai</h4>
-
-                @foreach (var item in workers)
+                @if (workers != null)
                 {
-                    <div class="checkbox">
-                        <label>@item.Name @item.Surname</label>
-                        <input type="checkbox"
+                    @foreach (var item in workers)
+                    {
+                        <div class="checkbox">
+                            <label>@item.Name @item.Surname</label>
+                            <input type="checkbox"
                                name="workers[@i]"
                                value="@item.Id"/>
-                    </div>
-                    i++;
+                        </div>
+                        i++;
 
-                }
+                    }
+                }   
                 <hr />
 
                 <div class="form-group">

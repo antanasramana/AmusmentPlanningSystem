@@ -79,8 +79,15 @@
                         @Html.DisplayFor(modelItem => e.To)
                     </td>
                         <td>
-                        @Html.DisplayFor(modelItem => e.WorkerId)
-                    </td>
+                            @if (e.Worker!=null)
+                            {
+                                @Html.DisplayFor(modelItem => e.Worker.Name)
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => e.Worker)
+                            }
+                        </td>
 
                     <td>
                         <a asp-controller="EventGeneration" asp-action="DeleteEvent" asp-route-id="@e.Id">Delete</a>
